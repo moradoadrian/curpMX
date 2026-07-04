@@ -1,0 +1,179 @@
+<div class="curp-wrapper">
+
+  <!-- ── TOOLBAR ── -->
+  <header class="toolbar">
+    <div class="toolbar__inner">
+      <button
+        class="toolbar__back-btn"
+        (click)="goBack()"
+        aria-label="Regresar al inicio"
+        type="button"
+      >
+        <span class="pi pi-arrow-left"></span>
+      </button>
+      <span class="toolbar__title">Validar CURP</span>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ── -->
+  <main class="curp-content">
+
+    <!-- ── INPUT CARD ── -->
+    <div class="card">
+      <div class="card__header">
+        <div class="card__icon-wrap">
+          <span class="pi pi-id-card card__icon"></span>
+        </div>
+        <div>
+          <h1 class="card__title">Introduce una CURP</h1>
+          <p class="card__desc">
+            La validación se realiza de forma local.<br>
+            No almacenamos tus datos.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="curp-input" class="form-label">CURP</label>
+        <input
+          id="curp-input"
+          pInputText
+          type="text"
+          inputmode="text"
+          autocomplete="off"
+          autofocus
+          spellcheck="false"
+          maxlength="18"
+          placeholder="Ej. MORC980101HGTXXX09"
+          aria-label="Ingresa tu CURP"
+          aria-describedby="curp-counter curp-hint"
+          class="curp-input"
+          [formControl]="curpControl"
+          (input)="onInput()"
+          (keydown.enter)="validate()"
+        />
+        <div class="form-meta">
+          <span id="curp-hint" class="form-hint">Solo letras y números, sin espacios.</span>
+          <span id="curp-counter" class="form-counter" [class.form-counter--full]="isValidLength">
+            {{ charCount }} / 18
+          </span>
+        </div>
+      </div>
+
+      <button
+        pButton
+        type="button"
+        label="Validar CURP"
+        icon="pi pi-search"
+        class="validate-btn"
+        [disabled]="!isValidLength || isLoading()"
+        (click)="validate()"
+        aria-label="Validar CURP ingresada"
+      ></button>
+    </div>
+
+    <!-- ── LOADING SPINNER ── -->
+    @if (isLoading()) {
+      <div class="spinner-wrap" role="status" aria-label="Validando CURP">
+        <p-progressSpinner
+          styleClass="curp-spinner"
+          strokeWidth="4"
+          animationDuration=".8s"
+        />
+        <span class="spinner-label">Validando…</span>
+      </div>
+    }
+
+    <!-- ── RESULT CARD ── -->
+    @if (result(); as res) {
+      <div class="card result-card" [class.result-card--valid]="res.valid" [class.result-card--invalid]="!res.valid">
+
+        <!-- Status tag -->
+        <div class="result-card__status">
+          @if (res.valid) {
+            <p-tag
+              value="CURP VÁLIDA"
+              severity="success"
+              icon="pi pi-check-circle"
+              styleClass="result-tag result-tag--valid"
+            />
+          } @else {
+            <p-tag
+              value="CURP INVÁLIDA"
+              severity="danger"
+              icon="pi pi-times-circle"
+              styleClass="result-tag result-tag--invalid"
+            />
+          }
+        </div>
+
+        @if (res.valid) {
+          <!-- Valid — data list -->
+          <ul class="result-list" aria-label="Datos de la CURP">
+            <li class="result-item">
+              <span class="pi pi-id-card result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">CURP</span>
+                <span class="result-item__value result-item__value--mono">{{ res.curp }}</span>
+              </div>
+            </li>
+            <li class="result-item">
+              <span class="pi pi-calendar result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">Fecha de nacimiento</span>
+                <span class="result-item__value">{{ res.birthDate }}</span>
+              </div>
+            </li>
+            <li class="result-item">
+              <span class="pi pi-clock result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">Edad</span>
+                <span class="result-item__value">{{ res.age }} años</span>
+              </div>
+            </li>
+            <li class="result-item">
+              <span class="pi pi-user result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">Sexo</span>
+                <span class="result-item__value">{{ res.gender }}</span>
+              </div>
+            </li>
+            <li class="result-item">
+              <span class="pi pi-map-marker result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">Estado</span>
+                <span class="result-item__value">{{ res.state }}</span>
+              </div>
+            </li>
+            <li class="result-item">
+              <span class="pi pi-shield result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">Dígito verificador</span>
+                <span class="result-item__value">
+                  {{ res.verifierValid ? '✔ Correcto' : '✖ Incorrecto' }}
+                </span>
+              </div>
+            </li>
+          </ul>
+        } @else {
+          <!-- Invalid — error message -->
+          <p-message
+            severity="error"
+            [text]="res.message"
+            styleClass="result-message"
+          />
+        }
+
+      </div>
+    }
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="curp-footer">
+    <span>v1.0.0</span>
+    <span class="curp-footer__separator">·</span>
+    <span>© ValidaMX</span>
+  </footer>
+
+</div>

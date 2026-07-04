@@ -1,0 +1,165 @@
+<div class="rfc-wrapper">
+
+  <!-- ── TOOLBAR ── -->
+  <header class="toolbar">
+    <div class="toolbar__inner">
+      <button
+        class="toolbar__back-btn"
+        (click)="goBack()"
+        aria-label="Regresar al inicio"
+        type="button"
+      >
+        <span class="pi pi-arrow-left"></span>
+      </button>
+      <span class="toolbar__title">Validar RFC</span>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ── -->
+  <main class="rfc-content">
+
+    <!-- ── INPUT CARD ── -->
+    <div class="card">
+      <div class="card__header">
+        <div class="card__icon-wrap">
+          <span class="pi pi-file card__icon"></span>
+        </div>
+        <div>
+          <h1 class="card__title">Introduce un RFC</h1>
+          <p class="card__desc">
+            La validación se realiza de forma local.<br>
+            No almacenamos tus datos.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="rfc-input" class="form-label">RFC</label>
+        <input
+          id="rfc-input"
+          pInputText
+          type="text"
+          inputmode="text"
+          autocomplete="off"
+          autofocus
+          spellcheck="false"
+          maxlength="13"
+          placeholder="Ej. VECJ880326XXX o ABC680524YYY"
+          aria-label="Ingresa tu RFC"
+          aria-describedby="rfc-counter rfc-hint"
+          class="rfc-input"
+          [formControl]="rfcControl"
+          (input)="onInput()"
+          (keydown.enter)="validate()"
+        />
+        <div class="form-meta">
+          <span id="rfc-hint" class="form-hint">Persona Física (13 carac.) o Moral (12 carac.).</span>
+          <span id="rfc-counter" class="form-counter" [class.form-counter--full]="isValidLength">
+            {{ charCount }} / 13
+          </span>
+        </div>
+      </div>
+
+      <button
+        pButton
+        type="button"
+        label="Validar RFC"
+        icon="pi pi-search"
+        class="validate-btn"
+        [disabled]="!isValidLength || isLoading()"
+        (click)="validate()"
+        aria-label="Validar RFC ingresado"
+      ></button>
+    </div>
+
+    <!-- ── LOADING SPINNER ── -->
+    @if (isLoading()) {
+      <div class="spinner-wrap" role="status" aria-label="Validando RFC">
+        <p-progressSpinner
+          styleClass="rfc-spinner"
+          strokeWidth="4"
+          animationDuration=".8s"
+        />
+        <span class="spinner-label">Validando…</span>
+      </div>
+    }
+
+    <!-- ── RESULT CARD ── -->
+    @if (result(); as res) {
+      <div class="card result-card" [class.result-card--valid]="res.valid" [class.result-card--invalid]="!res.valid">
+
+        <!-- Status tag -->
+        <div class="result-card__status">
+          @if (res.valid) {
+            <p-tag
+              value="RFC VÁLIDO"
+              severity="success"
+              icon="pi pi-check-circle"
+              styleClass="result-tag result-tag--valid"
+            />
+          } @else {
+            <p-tag
+              value="RFC INVÁLIDO"
+              severity="danger"
+              icon="pi pi-times-circle"
+              styleClass="result-tag result-tag--invalid"
+            />
+          }
+        </div>
+
+        @if (res.valid) {
+          <!-- Valid — data list -->
+          <ul class="result-list" aria-label="Datos del RFC">
+            <li class="result-item">
+              <span class="pi pi-file result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">RFC</span>
+                <span class="result-item__value result-item__value--mono">{{ res.rfc }}</span>
+              </div>
+            </li>
+            <li class="result-item">
+              <span class="pi pi-user result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">Tipo de Persona</span>
+                <span class="result-item__value">Persona {{ res.type }}</span>
+              </div>
+            </li>
+            <li class="result-item">
+              <span class="pi pi-calendar result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">
+                  {{ res.type === 'Física' ? 'Fecha de nacimiento' : 'Fecha de constitución' }}
+                </span>
+                <span class="result-item__value">{{ res.birthOrFoundationDate }}</span>
+              </div>
+            </li>
+            <li class="result-item">
+              <span class="pi pi-key result-item__icon"></span>
+              <div class="result-item__body">
+                <span class="result-item__label">Homoclave</span>
+                <span class="result-item__value">{{ res.homoclave }}</span>
+              </div>
+            </li>
+          </ul>
+        } @else {
+          <!-- Invalid — error message -->
+          <p-message
+            severity="error"
+            [text]="res.message"
+            styleClass="result-message"
+          />
+        }
+
+      </div>
+    }
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="rfc-footer">
+    <span>v1.0.0</span>
+    <span class="rfc-footer__separator">·</span>
+    <span>© ValidaMX</span>
+  </footer>
+
+</div>

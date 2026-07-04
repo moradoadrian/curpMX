@@ -1,0 +1,61 @@
+<div class="home-wrapper">
+
+  <!-- ── TOOLBAR ── -->
+  <header class="toolbar">
+    <div class="toolbar__inner">
+      <div class="toolbar__brand">
+        <div class="toolbar__logo">
+          <span class="toolbar__logo-mx">MX</span>
+        </div>
+        <div class="toolbar__text">
+          <span class="toolbar__app-name">ValidaMX</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero__icon-wrap">
+      <span class="pi pi-shield hero__shield-icon"></span>
+    </div>
+    <h1 class="hero__title">ValidaMX</h1>
+    <p class="hero__subtitle">Herramientas para validar documentos mexicanos</p>
+  </section>
+
+  <!-- ── MENU CARDS ── -->
+  <main class="menu">
+    @for (item of menuItems; track item.route) {
+      <button
+        class="menu-card"
+        [class.menu-card--disabled]="item.disabled"
+        (click)="navigate(item)"
+        pRipple
+        [attr.aria-disabled]="item.disabled"
+        [attr.aria-label]="item.title"
+      >
+        <div class="menu-card__icon-wrap">
+          <span [class]="item.icon + ' menu-card__icon'"></span>
+        </div>
+        <div class="menu-card__body">
+          <span class="menu-card__title">{{ item.title }}</span>
+          <span class="menu-card__desc">{{ item.description }}</span>
+        </div>
+        @if (item.badge) {
+          <span class="menu-card__badge">{{ item.badge }}</span>
+        }
+        @if (!item.disabled) {
+          <span class="pi pi-chevron-right menu-card__arrow"></span>
+        }
+      </button>
+    }
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="home-footer">
+    <span>v1.0.0</span>
+    <span class="home-footer__separator">·</span>
+    <span>© ValidaMX</span>
+  </footer>
+
+</div>

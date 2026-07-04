@@ -1,0 +1,5 @@
+/* Root app host — let router-outlet children control their own layout */
+:host {
+  display: block;
+  height: 100dvh;
+}

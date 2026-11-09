@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -39,6 +39,16 @@ export class Rfc {
   readonly isLoading = signal(false);
   readonly result = signal<RfcResult | null>(null);
 
+  constructor() {
+    // Permite llegar desde el generador con ?valor=XXXX y validar de inmediato.
+    const value = inject(ActivatedRoute).snapshot.queryParamMap.get('valor');
+    if (value) {
+      this.rfcControl.setValue(value);
+      this.onInput();
+      this.validate();
+    }
+  }
+
   get charCount(): number {
     return this.rfcControl.value.length;
   }
@@ -64,15 +74,8 @@ export class Rfc {
   validate(): void {
     if (!this.isValidLength || this.isLoading()) return;
 
-    this.isLoading.set(true);
-    this.result.set(null);
-
-    // Simulated 1s processing delay
-    setTimeout(() => {
-      const rfcResult = this.rfcService.validate(this.rfcControl.value);
-      this.result.set(rfcResult);
-      this.isLoading.set(false);
-    }, 1000);
+    // La validación es local y síncrona: no hace falta simular espera.
+    this.result.set(this.rfcService.validate(this.rfcControl.value));
   }
 
   goBack(): void {

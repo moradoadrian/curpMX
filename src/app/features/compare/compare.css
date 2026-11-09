@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.char {
+  @apply w-7 h-8 flex items-center justify-center rounded-md bg-primary-50 text-primary-900;
+}
+
+.char-diff {
+  @apply bg-red-50 text-red-600 font-semibold;
+}

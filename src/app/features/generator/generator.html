@@ -1,0 +1,146 @@
+<p-toast></p-toast>
+<div class="min-h-screen bg-white font-sans flex flex-col max-w-md mx-auto pb-8 relative">
+  <!-- ── TOOLBAR ── -->
+  <header class="sticky top-0 z-50 bg-primary-800 text-white flex items-center h-14 px-4 select-none">
+    <button (click)="goBack()" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-colors text-white mr-2" aria-label="Regresar al inicio">
+      <span class="pi pi-arrow-left text-lg"></span>
+    </button>
+    <span class="text-lg font-semibold tracking-tight">Generar CURP y RFC</span>
+  </header>
+
+  <main class="flex-1 flex flex-col gap-6 p-5">
+    <!-- ── FORM ── -->
+    <form [formGroup]="form" (ngSubmit)="generate()" class="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col gap-4" novalidate>
+      <div class="flex items-start gap-3">
+        <span class="pi pi-user-edit text-2xl text-primary-800 mt-0.5 shrink-0"></span>
+        <div class="flex flex-col gap-0.5">
+          <h2 class="text-[16px] font-semibold text-slate-800">Datos de la persona</h2>
+          <p class="text-[13px] text-slate-500">Escribe los datos tal como aparecen en el acta de nacimiento.</p>
+        </div>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Nombre(s)</span>
+        <input class="field-input" formControlName="names" autocomplete="given-name" placeholder="Ej. María Luisa" />
+        @if (showError('names')) {
+          <span class="field-error">Escribe el nombre usando solo letras.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Primer apellido</span>
+        <input class="field-input" formControlName="firstSurname" autocomplete="family-name" placeholder="Ej. Pérez" />
+        @if (showError('firstSurname')) {
+          <span class="field-error">Escribe el primer apellido usando solo letras.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Segundo apellido <span class="font-normal text-slate-400">(opcional)</span></span>
+        <input class="field-input" formControlName="secondSurname" placeholder="Ej. López" />
+        @if (showError('secondSurname')) {
+          <span class="field-error">Usa solo letras.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Fecha de nacimiento</span>
+        <input class="field-input" type="date" formControlName="birthDate" min="1900-01-01" [max]="today" />
+        @if (showError('birthDate')) {
+          <span class="field-error">{{ dateError() }}</span>
+        }
+      </label>
+
+      <fieldset class="field">
+        <legend class="field-label mb-1.5">Sexo</legend>
+        <div class="grid grid-cols-3 gap-2">
+          @for (g of genders; track g.value) {
+            <label class="segment" [class.segment-active]="form.controls.gender.value === g.value">
+              <input type="radio" class="sr-only" formControlName="gender" [value]="g.value" />
+              {{ g.label }}
+            </label>
+          }
+        </div>
+        @if (showError('gender')) {
+          <span class="field-error">Selecciona una opción.</span>
+        }
+      </fieldset>
+
+      <label class="field">
+        <span class="field-label">Entidad de nacimiento</span>
+        <select class="field-input" formControlName="stateCode">
+          <option value="" disabled>Selecciona una entidad</option>
+          @for (s of states; track s.code) {
+            <option [value]="s.code">{{ s.name }}</option>
+          }
+        </select>
+        @if (showError('stateCode')) {
+          <span class="field-error">Selecciona la entidad de nacimiento.</span>
+        }
+      </label>
+
+      <div class="grid grid-cols-[1fr_2fr] gap-3 mt-1">
+        <button type="button" class="btn-secondary h-12" (click)="reset()">Limpiar</button>
+        <button type="submit" class="btn-primary h-12">Generar</button>
+      </div>
+    </form>
+
+    <!-- ── RESULT ── -->
+    @if (result(); as res) {
+      <section class="flex flex-col gap-4 animate-fade-in" aria-live="polite">
+        <div class="doc-card">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CURP</span>
+          <span class="text-[18px] font-semibold text-slate-800 font-mono tracking-wider break-all">
+            {{ res.curp.substring(0, 16) }}<span class="text-amber-600">{{ res.curp.substring(16) }}</span>
+          </span>
+          <p class="text-[12px] text-slate-500 leading-relaxed">
+            Los dos últimos caracteres (<span class="text-amber-600 font-medium">en ámbar</span>) los asigna RENAPO
+            y pueden ser distintos en tu CURP oficial.
+          </p>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <button type="button" class="btn-secondary h-10" (click)="copy(res.curp, 'CURP')">
+              <span class="pi pi-copy"></span> Copiar
+            </button>
+            <button type="button" class="btn-secondary h-10" (click)="validateIn('curp', res.curp)">
+              <span class="pi pi-check-circle"></span> Validar
+            </button>
+          </div>
+        </div>
+
+        <div class="doc-card">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">RFC (persona física)</span>
+          <span class="text-[18px] font-semibold text-slate-800 font-mono tracking-wider break-all">
+            {{ res.rfc.substring(0, 10) }}<span class="text-amber-600">{{ res.rfc.substring(10) }}</span>
+          </span>
+          <p class="text-[12px] text-slate-500 leading-relaxed">
+            La homoclave (<span class="text-amber-600 font-medium">en ámbar</span>) se calcula con el algoritmo del SAT.
+            En casos de homonimia el SAT puede asignar otra.
+          </p>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <button type="button" class="btn-secondary h-10" (click)="copy(res.rfc, 'RFC')">
+              <span class="pi pi-copy"></span> Copiar
+            </button>
+            <button type="button" class="btn-secondary h-10" (click)="validateIn('rfc', res.rfc)">
+              <span class="pi pi-check-circle"></span> Validar
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="btn-secondary h-11" (click)="compareResult(res)">
+          <span class="pi pi-arrow-right-arrow-left"></span> Comparar CURP y RFC
+        </button>
+
+        <p class="text-[11px] text-slate-400 text-center select-none">
+          <span class="pi pi-shield text-[10px] mr-1 align-middle"></span>
+          El cálculo se hace en tu dispositivo. Para trámites usa siempre el documento oficial.
+        </p>
+      </section>
+    }
+  </main>
+
+  <footer class="flex items-center justify-center gap-2.5 py-6 text-[13px] font-medium text-slate-400">
+    <span>v1.0.0</span>
+    <span class="opacity-50">·</span>
+    <span>© ValidaMX</span>
+  </footer>
+</div>

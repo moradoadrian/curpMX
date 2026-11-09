@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-settings',
@@ -6,4 +7,11 @@ import { Component } from '@angular/core';
   templateUrl: './settings.html',
   styleUrl: './settings.css',
 })
-export class Settings {}
+export class Settings {
+  private readonly router = inject(Router);
+
+  goBack(): void {
+    this.router.navigate(['/']);
+  }
+}
+

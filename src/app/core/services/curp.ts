@@ -2,11 +2,16 @@ import { Injectable } from '@angular/core';
 import { CurpResult } from '../../shared/interfaces/curp-result.interface';
 import { MEXICAN_STATES } from '../../shared/constants/mexican-states';
 
+/** Sexo en la posición 11. RENAPO admite "X" (no binario) desde 2023. */
+const GENDERS: Record<string, string> = {
+  H: 'Hombre',
+  M: 'Mujer',
+  X: 'No binario',
+};
+
 /**
- * CurpService — Arquitectura preparada para integrar el algoritmo oficial.
- *
- * Todos los métodos devuelven datos simulados por ahora.
- * La lógica de validación real se integrará sin modificar la interfaz pública.
+ * CurpService — Validación local de la CURP según el instructivo de RENAPO:
+ * formato, fecha de nacimiento, sexo (H, M o X), entidad y dígito verificador.
  */
 @Injectable({
   providedIn: 'root',
@@ -15,7 +20,6 @@ export class CurpService {
 
   /**
    * Valida una CURP completa y devuelve un CurpResult.
-   * TODO: Implementar algoritmo oficial de validación RENAPO.
    */
   validate(curp: string): CurpResult {
     const upper = curp.trim().toUpperCase();
@@ -24,8 +28,8 @@ export class CurpService {
       return this.invalidResult(upper, 'Longitud incorrecta. La CURP debe tener exactamente 18 caracteres.');
     }
 
-    // TODO: Validate pattern with official regex
-    const pattern = /^[A-Z]{4}\d{6}[HM][A-Z]{2}[A-Z]{3}\d{2}$/;
+    // Expresión regular oficial
+    const pattern = /^[A-ZÑ][AEIOUX][A-ZÑ]{2}\d{6}[HMX][A-Z]{2}[B-DF-HJ-NP-TV-ZÑ]{3}[A-Z0-9]\d$/;
     if (!pattern.test(upper)) {
       return this.invalidResult(upper, 'Formato inválido. Verifica que la CURP contenga los caracteres correctos.');
     }
@@ -35,78 +39,87 @@ export class CurpService {
       return this.invalidResult(upper, `Estado "${stateCode}" no reconocido.`);
     }
 
-    // TODO: Validate birth date range
-    // TODO: Implement checksum verifier (calculateVerifier)
-    // Returning simulated valid result for now
+    const genderCode = upper.substring(10, 11);
+    const gender = GENDERS[genderCode];
+    if (!gender) {
+      return this.invalidResult(upper, 'Sexo inválido.');
+    }
+
+    // Validación de fecha real
+    const dateStr = upper.substring(4, 10);
+    const yy = parseInt(dateStr.substring(0, 2), 10);
+    const mm = parseInt(dateStr.substring(2, 4), 10);
+    const dd = parseInt(dateStr.substring(4, 6), 10);
+
+    /*
+     * Lógica oficial de asignación del siglo por RENAPO (Posición 17 del formato CURP):
+     * El carácter en la posición 17 funciona como diferenciador de homonimia y del siglo de nacimiento.
+     * 
+     * Regla oficial de RENAPO:
+     * - Si la fecha de nacimiento es anterior al año 2000 (1900 - 1999), RENAPO asigna un dígito numérico (del '0' al '9').
+     * - Si la fecha de nacimiento es del año 2000 en adelante, RENAPO asigna una letra mayúscula (de la 'A' a la 'Z').
+     * 
+     * Es por esto que verificamos explícitamente si el carácter es numérico para determinar determinísticamente 
+     * el siglo de nacimiento, sin adivinar basado únicamente en el valor del año.
+     */
+    const centuryChar = upper.charAt(16);
+    const is1900 = centuryChar >= '0' && centuryChar <= '9';
+    const year = is1900 ? 1900 + yy : 2000 + yy;
+
+    const date = new Date(year, mm - 1, dd);
+    if (date.getFullYear() !== year || date.getMonth() !== mm - 1 || date.getDate() !== dd) {
+      return this.invalidResult(upper, 'La fecha de nacimiento contenida en la CURP no es válida.');
+    }
+    if (date.getTime() > Date.now()) {
+      return this.invalidResult(upper, 'La fecha de nacimiento contenida en la CURP está en el futuro.');
+    }
+
+    // Algoritmo oficial de dígito verificador RENAPO
+    const expectedVerifier = this.calculateVerifier(upper.substring(0, 17));
+    if (expectedVerifier.toString() !== upper.charAt(17)) {
+      return this.invalidResult(upper, 'El dígito verificador de la CURP es incorrecto.');
+    }
+
     return {
       valid: true,
       curp: upper,
-      birthDate: this.getBirthDate(upper),
-      age: this.getAge(upper),
-      gender: this.getGender(upper),
-      state: this.getState(upper),
-      verifierValid: true, // TODO: replace with calculateVerifier result
+      birthDate: `${dd.toString().padStart(2, '0')}/${mm.toString().padStart(2, '0')}/${year}`,
+      age: this.getAge(year, mm, dd),
+      gender,
+      state: MEXICAN_STATES[stateCode],
+      verifierValid: true,
       message: 'CURP válida.',
     };
   }
 
   /**
-   * Extrae la fecha de nacimiento de la CURP.
-   * TODO: Handle century logic (1900 vs 2000).
+   * Calcula la edad a partir de la fecha de nacimiento.
    */
-  getBirthDate(curp: string): string {
-    // Positions 4-9: AAMMDD
-    const yy = curp.substring(4, 6);
-    const mm = curp.substring(6, 8);
-    const dd = curp.substring(8, 10);
-    // TODO: Determine century from verifier digit
-    const year = parseInt(yy, 10) <= 25 ? `20${yy}` : `19${yy}`;
-    return `${dd}/${mm}/${year}`;
-  }
-
-  /**
-   * Calcula la edad a partir de la fecha de nacimiento extraída.
-   * TODO: Refine with full date parsing.
-   */
-  getAge(curp: string): number {
-    const yy = parseInt(curp.substring(4, 6), 10);
-    const mm = parseInt(curp.substring(6, 8), 10);
-    const dd = parseInt(curp.substring(8, 10), 10);
-    const birthYear = yy <= 25 ? 2000 + yy : 1900 + yy;
+  private getAge(year: number, month: number, day: number): number {
     const today = new Date();
-    let age = today.getFullYear() - birthYear;
+    let age = today.getFullYear() - year;
     const hasBirthdayPassed =
-      today.getMonth() + 1 > mm ||
-      (today.getMonth() + 1 === mm && today.getDate() >= dd);
+      today.getMonth() + 1 > month ||
+      (today.getMonth() + 1 === month && today.getDate() >= day);
     if (!hasBirthdayPassed) age--;
-    return age;
+    return Math.max(0, age);
   }
 
   /**
-   * Devuelve el sexo a partir de la CURP.
-   * Posición 10: H = Hombre, M = Mujer.
+   * Calcula el dígito verificador utilizando el algoritmo módulo 10 de RENAPO.
    */
-  getGender(curp: string): string {
-    const code = curp.substring(10, 11);
-    return code === 'H' ? 'Hombre' : 'Mujer';
-  }
+  calculateVerifier(curp17: string): number {
+    const dictionary = '0123456789ABCDEFGHIJKLMNÑOPQRSTUVWXYZ';
+    let sum = 0;
 
-  /**
-   * Devuelve el nombre completo del estado a partir del código en la CURP.
-   * Posiciones 11-12: clave de estado.
-   */
-  getState(curp: string): string {
-    const code = curp.substring(11, 13);
-    return MEXICAN_STATES[code] ?? 'Estado desconocido';
-  }
+    for (let i = 0; i < 17; i++) {
+      const char = curp17.charAt(i);
+      const value = dictionary.indexOf(char);
+      sum += value * (18 - i);
+    }
 
-  /**
-   * Calcula el dígito verificador.
-   * TODO: Implementar algoritmo oficial RENAPO.
-   */
-  calculateVerifier(curp: string): number {
-    // TODO: Implement official checksum algorithm
-    return 0;
+    const mod = 10 - (sum % 10);
+    return mod === 10 ? 0 : mod;
   }
 
   // ── Private helpers ──────────────────────────────────────────────────────

@@ -1,61 +1,58 @@
-<div class="home-wrapper">
-
+<div class="min-h-screen bg-white font-sans flex flex-col max-w-md mx-auto pb-8 relative">
   <!-- ── TOOLBAR ── -->
-  <header class="toolbar">
-    <div class="toolbar__inner">
-      <div class="toolbar__brand">
-        <div class="toolbar__logo">
-          <span class="toolbar__logo-mx">MX</span>
-        </div>
-        <div class="toolbar__text">
-          <span class="toolbar__app-name">ValidaMX</span>
-        </div>
-      </div>
-    </div>
+  <header class="sticky top-0 z-50 bg-primary-800 text-white flex items-center h-14 px-5 select-none">
+    <span class="text-lg font-semibold tracking-tight">ValidaMX</span>
   </header>
 
   <!-- ── HERO ── -->
-  <section class="hero">
-    <div class="hero__icon-wrap">
-      <span class="pi pi-shield hero__shield-icon"></span>
+  <section class="flex flex-col items-center text-center py-8 px-6">
+    <div class="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-800 mb-4">
+      <span class="pi pi-shield text-3xl"></span>
     </div>
-    <h1 class="hero__title">ValidaMX</h1>
-    <p class="hero__subtitle">Herramientas para validar documentos mexicanos</p>
+    <h1 class="text-2xl font-bold text-slate-800 tracking-tight mb-1">ValidaMX</h1>
+    <p class="text-sm text-slate-500 max-w-xs leading-relaxed">Herramientas de validación de documentos mexicanos</p>
   </section>
 
-  <!-- ── MENU CARDS ── -->
-  <main class="menu">
-    @for (item of menuItems; track item.route) {
-      <button
-        class="menu-card"
-        [class.menu-card--disabled]="item.disabled"
-        (click)="navigate(item)"
-        pRipple
-        [attr.aria-disabled]="item.disabled"
-        [attr.aria-label]="item.title"
-      >
-        <div class="menu-card__icon-wrap">
-          <span [class]="item.icon + ' menu-card__icon'"></span>
-        </div>
-        <div class="menu-card__body">
-          <span class="menu-card__title">{{ item.title }}</span>
-          <span class="menu-card__desc">{{ item.description }}</span>
-        </div>
-        @if (item.badge) {
-          <span class="menu-card__badge">{{ item.badge }}</span>
-        }
-        @if (!item.disabled) {
-          <span class="pi pi-chevron-right menu-card__arrow"></span>
-        }
-      </button>
-    }
+  <!-- ── MENU LIST ── -->
+  <main class="flex-1 flex flex-col px-4">
+    <div class="flex flex-col border border-slate-100 rounded-2xl overflow-hidden bg-white">
+      @for (item of menuItems; track item.route) {
+        <button
+          class="w-full flex items-center gap-4 px-4 py-4 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-none relative"
+          [class.opacity-50]="item.disabled"
+          [class.cursor-not-allowed]="item.disabled"
+          (click)="navigate(item)"
+          pRipple
+          [attr.aria-disabled]="item.disabled"
+          [attr.aria-label]="item.title"
+        >
+          <div class="w-10 h-10 rounded-full bg-primary-50/60 flex items-center justify-center text-primary-800 shrink-0">
+            <span [class]="item.icon + ' text-lg'"></span>
+          </div>
+          <div class="flex-1 text-left">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-[15px] text-slate-800 leading-none">{{ item.title }}</span>
+              @if (item.badge) {
+                <span class="text-[9px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  {{ item.badge }}
+                </span>
+              }
+            </div>
+            <p class="text-xs text-slate-400 mt-1 leading-normal">{{ item.description }}</p>
+          </div>
+          @if (!item.disabled) {
+            <span class="pi pi-chevron-right text-slate-300 text-xs shrink-0"></span>
+          }
+        </button>
+      }
+    </div>
   </main>
 
   <!-- ── FOOTER ── -->
-  <footer class="home-footer">
+  <footer class="flex items-center justify-center gap-2 py-6 text-[13px] font-medium text-slate-400">
     <span>v1.0.0</span>
-    <span class="home-footer__separator">·</span>
+    <span class="opacity-50">·</span>
     <span>© ValidaMX</span>
   </footer>
-
 </div>
+

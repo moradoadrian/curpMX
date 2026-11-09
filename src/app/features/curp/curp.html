@@ -1,179 +1,159 @@
-<div class="curp-wrapper">
-
+<p-toast></p-toast>
+<div class="min-h-screen bg-white font-sans flex flex-col max-w-md mx-auto pb-8 relative">
   <!-- ── TOOLBAR ── -->
-  <header class="toolbar">
-    <div class="toolbar__inner">
-      <button
-        class="toolbar__back-btn"
-        (click)="goBack()"
-        aria-label="Regresar al inicio"
-        type="button"
-      >
-        <span class="pi pi-arrow-left"></span>
-      </button>
-      <span class="toolbar__title">Validar CURP</span>
-    </div>
+  <header class="sticky top-0 z-50 bg-primary-800 text-white flex items-center h-14 px-4 select-none">
+    <button (click)="goBack()" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-colors text-white mr-2" aria-label="Regresar al inicio" pRipple>
+      <span class="pi pi-arrow-left text-lg"></span>
+    </button>
+    <span class="text-lg font-semibold tracking-tight">Valida CURP</span>
   </header>
 
-  <!-- ── CONTENT ── -->
-  <main class="curp-content">
-
+  <main class="flex-1 flex flex-col gap-6 p-5">
     <!-- ── INPUT CARD ── -->
-    <div class="card">
-      <div class="card__header">
-        <div class="card__icon-wrap">
-          <span class="pi pi-id-card card__icon"></span>
-        </div>
-        <div>
-          <h1 class="card__title">Introduce una CURP</h1>
-          <p class="card__desc">
-            La validación se realiza de forma local.<br>
-            No almacenamos tus datos.
-          </p>
+    <div class="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col gap-5">
+      <div class="flex items-start gap-3">
+        <span class="pi pi-id-card text-2xl text-primary-800 mt-0.5 shrink-0"></span>
+        <div class="flex flex-col gap-0.5">
+          <h2 class="text-[16px] font-semibold text-slate-800">Introduce una CURP</h2>
+          <p class="text-[13px] text-slate-500">La validación se realiza de forma local. No almacenamos tus datos.</p>
         </div>
       </div>
 
-      <div class="form-field">
-        <label for="curp-input" class="form-label">CURP</label>
-        <input
-          id="curp-input"
-          pInputText
-          type="text"
-          inputmode="text"
-          autocomplete="off"
-          autofocus
-          spellcheck="false"
-          maxlength="18"
-          placeholder="Ej. MORC980101HGTXXX09"
-          aria-label="Ingresa tu CURP"
-          aria-describedby="curp-counter curp-hint"
-          class="curp-input"
-          [formControl]="curpControl"
-          (input)="onInput()"
-          (keydown.enter)="validate()"
-        />
-        <div class="form-meta">
-          <span id="curp-hint" class="form-hint">Solo letras y números, sin espacios.</span>
-          <span id="curp-counter" class="form-counter" [class.form-counter--full]="isValidLength">
-            {{ charCount }} / 18
-          </span>
-        </div>
-      </div>
+      <input
+        id="curp-input"
+        pInputText
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        autofocus
+        spellcheck="false"
+        maxlength="18"
+        placeholder="Ej. MORC980101HGTXXX09"
+        class="w-full px-4 py-3 h-12 text-[15px] font-mono tracking-wider text-slate-900 bg-slate-50 border border-slate-200 rounded-xl uppercase outline-none focus:bg-white focus:border-primary-800 transition-all placeholder:text-slate-400 placeholder:font-sans placeholder:tracking-normal"
+        [formControl]="curpControl"
+        (input)="onInput()"
+        (keydown.enter)="validate()"
+      />
 
       <button
         pButton
+        pRipple
         type="button"
         label="Validar CURP"
-        icon="pi pi-search"
-        class="validate-btn"
+        class="w-full h-12 flex items-center justify-center bg-primary-800 hover:bg-primary-900 disabled:opacity-40 disabled:hover:bg-primary-800 text-white font-medium text-[15px] rounded-xl transition-all outline-none"
         [disabled]="!isValidLength || isLoading()"
         (click)="validate()"
-        aria-label="Validar CURP ingresada"
       ></button>
     </div>
 
     <!-- ── LOADING SPINNER ── -->
     @if (isLoading()) {
-      <div class="spinner-wrap" role="status" aria-label="Validando CURP">
-        <p-progressSpinner
-          styleClass="curp-spinner"
-          strokeWidth="4"
-          animationDuration=".8s"
-        />
-        <span class="spinner-label">Validando…</span>
+      <div class="flex flex-col items-center justify-center gap-3 py-8 animate-fade-in">
+        <p-progressSpinner styleClass="w-10 h-10" strokeWidth="3" animationDuration="1s"></p-progressSpinner>
+        <span class="text-[14px] font-medium text-slate-500">Validando documento…</span>
       </div>
     }
 
-    <!-- ── RESULT CARD ── -->
+    <!-- ── RESULT SECTION ── -->
     @if (result(); as res) {
-      <div class="card result-card" [class.result-card--valid]="res.valid" [class.result-card--invalid]="!res.valid">
-
-        <!-- Status tag -->
-        <div class="result-card__status">
-          @if (res.valid) {
-            <p-tag
-              value="CURP VÁLIDA"
-              severity="success"
-              icon="pi pi-check-circle"
-              styleClass="result-tag result-tag--valid"
-            />
-          } @else {
-            <p-tag
-              value="CURP INVÁLIDA"
-              severity="danger"
-              icon="pi pi-times-circle"
-              styleClass="result-tag result-tag--invalid"
-            />
-          }
-        </div>
-
+      <div class="flex flex-col gap-6 mt-2 animate-fade-in">
+        
+        <!-- Status Header -->
         @if (res.valid) {
-          <!-- Valid — data list -->
-          <ul class="result-list" aria-label="Datos de la CURP">
-            <li class="result-item">
-              <span class="pi pi-id-card result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">CURP</span>
-                <span class="result-item__value result-item__value--mono">{{ res.curp }}</span>
-              </div>
-            </li>
-            <li class="result-item">
-              <span class="pi pi-calendar result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">Fecha de nacimiento</span>
-                <span class="result-item__value">{{ res.birthDate }}</span>
-              </div>
-            </li>
-            <li class="result-item">
-              <span class="pi pi-clock result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">Edad</span>
-                <span class="result-item__value">{{ res.age }} años</span>
-              </div>
-            </li>
-            <li class="result-item">
-              <span class="pi pi-user result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">Sexo</span>
-                <span class="result-item__value">{{ res.gender }}</span>
-              </div>
-            </li>
-            <li class="result-item">
-              <span class="pi pi-map-marker result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">Estado</span>
-                <span class="result-item__value">{{ res.state }}</span>
-              </div>
-            </li>
-            <li class="result-item">
-              <span class="pi pi-shield result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">Dígito verificador</span>
-                <span class="result-item__value">
-                  {{ res.verifierValid ? '✔ Correcto' : '✖ Incorrecto' }}
-                </span>
-              </div>
-            </li>
-          </ul>
+          <div class="flex flex-col items-center gap-2 py-4">
+            <span class="pi pi-check-circle text-primary-800 text-5xl"></span>
+            <span class="text-lg font-bold text-slate-800 tracking-tight">CURP válida</span>
+          </div>
+
+          <!-- Data List (Clean Rows) -->
+          <div class="flex flex-col">
+            <div class="flex flex-col gap-1 py-4 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CURP</span>
+              <span class="text-[16px] font-semibold text-slate-800 font-mono tracking-wider">{{ res.curp }}</span>
+            </div>
+            
+            <div class="flex flex-col gap-1 py-4 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Fecha</span>
+              <span class="text-[15px] font-medium text-slate-800">{{ res.birthDate }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1 py-4 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Edad</span>
+              <span class="text-[15px] font-medium text-slate-800">{{ res.age }} años</span>
+            </div>
+
+            <div class="flex flex-col gap-1 py-4 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sexo</span>
+              <span class="text-[15px] font-medium text-slate-800">{{ res.gender }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1 py-4 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Estado</span>
+              <span class="text-[15px] font-medium text-slate-800">{{ res.state }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1 py-4">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Dígito</span>
+              <span class="text-[15px] font-medium text-slate-800">{{ res.verifierValid ? 'Correcto' : 'Incorrecto' }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col gap-3 mt-4">
+            <div class="grid grid-cols-2 gap-3">
+              <button
+                pButton
+                pRipple
+                type="button"
+                label="Copiar"
+                icon="pi pi-copy"
+                class="w-full h-11 flex items-center justify-center gap-2 border border-slate-200 text-slate-700 font-medium text-[14px] rounded-xl hover:bg-slate-50 transition-colors bg-white shadow-sm"
+                (click)="copyCurp()"
+              ></button>
+              <button
+                pButton
+                pRipple
+                type="button"
+                label="Compartir"
+                icon="pi pi-share-alt"
+                class="w-full h-11 flex items-center justify-center gap-2 border border-slate-200 text-slate-700 font-medium text-[14px] rounded-xl hover:bg-slate-50 transition-colors bg-white shadow-sm"
+                (click)="shareCurp()"
+              ></button>
+            </div>
+            
+            <button
+              pButton
+              pRipple
+              type="button"
+              label="Descargar CURP Oficial"
+              icon="pi pi-external-link"
+              class="w-full h-12 flex items-center justify-center gap-2 bg-primary-800 hover:bg-primary-900 text-white font-medium text-[15px] rounded-xl transition-all active:scale-[0.99]"
+              (click)="openOfficialPortal()"
+            ></button>
+          </div>
         } @else {
-          <!-- Invalid — error message -->
-          <p-message
-            severity="error"
-            [text]="res.message"
-            styleClass="result-message"
-          />
+          <!-- Invalid Status -->
+          <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
+            <span class="pi pi-times-circle text-red-500 text-5xl"></span>
+            <span class="text-lg font-bold text-slate-800 tracking-tight">CURP inválida</span>
+            <p class="text-[14px] text-slate-500 max-w-xs leading-relaxed mt-1">{{ res.message }}</p>
+          </div>
         }
 
+        <!-- Privacy Line -->
+        <p class="text-[11px] text-slate-400 text-center mt-3 select-none">
+          <span class="pi pi-shield text-[10px] mr-1 align-middle"></span>
+          Tus datos nunca salen de tu dispositivo.
+        </p>
+
       </div>
     }
-
   </main>
 
-  <!-- ── FOOTER ── -->
-  <footer class="curp-footer">
+  <footer class="flex items-center justify-center gap-2.5 py-6 text-[13px] font-medium text-slate-400">
     <span>v1.0.0</span>
-    <span class="curp-footer__separator">·</span>
+    <span class="opacity-50">·</span>
     <span>© ValidaMX</span>
   </footer>
-
 </div>
+

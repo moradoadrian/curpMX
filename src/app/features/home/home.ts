@@ -25,6 +25,18 @@ export class Home {
       route: '/rfc',
     },
     {
+      title: 'Generar CURP y RFC',
+      description: 'Calcula la CURP y el RFC a partir de los datos personales.',
+      icon: 'pi pi-user-edit',
+      route: '/generar',
+    },
+    {
+      title: 'Comparar CURP y RFC',
+      description: 'Verifica si una CURP y un RFC son de la misma persona.',
+      icon: 'pi pi-arrow-right-arrow-left',
+      route: '/comparar',
+    },
+    {
       title: 'Escanear Documento',
       description: 'Escanea automáticamente una CURP o RFC.',
       icon: 'pi pi-camera',

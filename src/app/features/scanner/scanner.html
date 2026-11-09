@@ -1,1 +1,24 @@
-<p>scanner works!</p>
+<div class="min-h-screen bg-white font-sans flex flex-col max-w-md mx-auto pb-8 relative">
+  <!-- ── TOOLBAR ── -->
+  <header class="sticky top-0 z-50 bg-primary-800 text-white flex items-center h-14 px-4 select-none">
+    <button (click)="goBack()" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-colors text-white mr-2" aria-label="Regresar al inicio" pRipple>
+      <span class="pi pi-arrow-left text-lg"></span>
+    </button>
+    <span class="text-lg font-semibold tracking-tight">Escanear Documento</span>
+  </header>
+
+  <main class="flex-1 flex flex-col items-center justify-center text-center p-6 gap-4">
+    <div class="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-800">
+      <span class="pi pi-camera text-3xl"></span>
+    </div>
+    <h2 class="text-lg font-semibold text-slate-800">Escáner de Documentos</h2>
+    <p class="text-sm text-slate-500 max-w-xs leading-relaxed">Próximamente podrás escanear de forma automática códigos QR y caracteres impresos en tus documentos oficiales.</p>
+  </main>
+
+  <footer class="flex items-center justify-center gap-2.5 py-6 text-[13px] font-medium text-slate-400">
+    <span>v1.0.0</span>
+    <span class="opacity-50">·</span>
+    <span>© ValidaMX</span>
+  </footer>
+</div>
+

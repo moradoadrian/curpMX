@@ -4,6 +4,69 @@
 /* ── PrimeIcons ── */
 @import 'primeicons/primeicons.css';
 
+/* ── TailwindCSS ── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Componentes compartidos (formularios, botones, tarjetas) ── */
+@layer components {
+  .field {
+    @apply flex flex-col gap-1.5 border-0 p-0 m-0;
+  }
+
+  .field-label {
+    @apply text-[13px] font-medium text-slate-700;
+  }
+
+  .field-input {
+    @apply w-full h-12 px-4 text-[15px] text-slate-900 bg-slate-50 border border-slate-200 rounded-xl outline-none transition-all placeholder:text-slate-400 focus:bg-white focus:border-primary-800;
+  }
+
+  .field-error {
+    @apply text-[12px] text-red-600;
+  }
+
+  .segment {
+    @apply h-11 flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-[14px] text-slate-700 cursor-pointer transition-colors select-none;
+  }
+
+  .segment:focus-within {
+    @apply outline outline-2 outline-offset-2 outline-primary-800;
+  }
+
+  .segment-active {
+    @apply bg-primary-800 border-primary-800 text-white;
+  }
+
+  .btn-primary {
+    @apply w-full flex items-center justify-center gap-2 bg-primary-800 hover:bg-primary-900 text-white font-medium text-[15px] rounded-xl transition-colors;
+  }
+
+  .btn-secondary {
+    @apply w-full flex items-center justify-center gap-2 border border-slate-200 text-slate-700 font-medium text-[14px] rounded-xl bg-white hover:bg-slate-50 transition-colors;
+  }
+
+  .doc-card {
+    @apply flex flex-col gap-2 p-5 rounded-2xl border border-slate-100 bg-white;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ── Reset & Base ── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -30,3 +93,80 @@ button:focus-visible {
   outline: 2px solid #006847;
   outline-offset: 2px;
 }
+
+/* ── PrimeNG Toast Material Design 3 Customization ── */
+.p-toast {
+  max-width: 90vw !important;
+  width: 344px !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.p-toast-message {
+  background: #313033 !important;
+  color: #F4EFF4 !important;
+  border-radius: 12px !important;
+  box-shadow: 0px 4px 18px rgba(0, 0, 0, 0.12), 0px 1px 3px rgba(0, 0, 0, 0.08) !important;
+  border: none !important;
+  margin-bottom: 8px !important;
+}
+
+.p-toast-message-content {
+  padding: 14px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.p-toast-message-icon {
+  font-size: 18px !important;
+  margin-right: 0 !important;
+}
+
+.p-toast-message-icon.pi-check-circle {
+  color: #85f0b5 !important; /* Material 3 success light green */
+}
+
+.p-toast-message-icon.pi-exclamation-triangle, 
+.p-toast-message-icon.pi-times-circle {
+  color: #ffb4ab !important; /* Material 3 error light red/coral */
+}
+
+.p-toast-message-text {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  margin: 0 !important;
+}
+
+.p-toast-summary {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: #ffffff !important;
+  line-height: 20px !important;
+}
+
+.p-toast-detail {
+  font-weight: 400 !important;
+  font-size: 13px !important;
+  color: #C8C5C9 !important;
+  line-height: 18px !important;
+}
+
+.p-toast-icon-close {
+  color: #C8C5C9 !important;
+  background: transparent !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-left: auto !important;
+  transition: background-color 0.2s, color 0.2s !important;
+}
+
+.p-toast-icon-close:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+

@@ -1,0 +1,100 @@
+<div class="min-h-screen bg-white font-sans flex flex-col max-w-md mx-auto pb-8 relative">
+  <!-- ── TOOLBAR ── -->
+  <header class="sticky top-0 z-50 bg-primary-800 text-white flex items-center h-14 px-4 select-none">
+    <button (click)="goBack()" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-colors text-white mr-2" aria-label="Regresar al inicio">
+      <span class="pi pi-arrow-left text-lg"></span>
+    </button>
+    <span class="text-lg font-semibold tracking-tight">Comparar CURP y RFC</span>
+  </header>
+
+  <main class="flex-1 flex flex-col gap-6 p-5">
+    <!-- ── FORM ── -->
+    <form [formGroup]="form" (ngSubmit)="compare()" class="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col gap-4" novalidate>
+      <div class="flex items-start gap-3">
+        <span class="pi pi-arrow-right-arrow-left text-2xl text-primary-800 mt-0.5 shrink-0"></span>
+        <div class="flex flex-col gap-0.5">
+          <h2 class="text-[16px] font-semibold text-slate-800">¿Son de la misma persona?</h2>
+          <p class="text-[13px] text-slate-500">Comparamos las iniciales y la fecha de nacimiento de ambos documentos.</p>
+        </div>
+      </div>
+
+      <label class="field">
+        <span class="field-label flex justify-between">CURP <span class="font-normal text-slate-400">{{ form.controls.curp.value.length }}/18</span></span>
+        <input class="field-input font-mono tracking-wider uppercase" formControlName="curp" (input)="onInput('curp')"
+               maxlength="18" autocomplete="off" spellcheck="false" placeholder="18 caracteres" />
+      </label>
+
+      <label class="field">
+        <span class="field-label flex justify-between">RFC <span class="font-normal text-slate-400">{{ form.controls.rfc.value.length }}/13</span></span>
+        <input class="field-input font-mono tracking-wider uppercase" formControlName="rfc" (input)="onInput('rfc')"
+               maxlength="13" autocomplete="off" spellcheck="false" placeholder="13 caracteres (persona física)" />
+      </label>
+
+      <button type="submit" class="btn-primary h-12 disabled:opacity-40 disabled:cursor-not-allowed" [disabled]="!canCompare">
+        Comparar
+      </button>
+    </form>
+
+    <!-- ── RESULT ── -->
+    @if (result(); as res) {
+      <section class="flex flex-col gap-5 animate-fade-in" aria-live="polite">
+        <div class="flex flex-col items-center gap-2 text-center">
+          <span class="text-5xl" [class]="view(res.status).icon + ' ' + view(res.status).color"></span>
+          <span class="text-lg font-bold text-slate-800 tracking-tight">{{ view(res.status).title }}</span>
+          <p class="text-[14px] text-slate-500 leading-relaxed max-w-xs">{{ res.message }}</p>
+        </div>
+
+        @if (res.status !== 'invalid') {
+          <!-- Comparación carácter por carácter -->
+          <div class="doc-card gap-3">
+            <div class="grid grid-cols-[3rem_1fr] gap-y-1.5 items-center font-mono text-[15px]">
+              <span class="text-[11px] font-sans font-semibold text-slate-400 uppercase">CURP</span>
+              <div class="flex gap-0.5">
+                @for (p of res.positions; track $index) {
+                  <span class="char" [class.char-diff]="!p">{{ res.curp.curp[$index] }}</span>
+                }
+              </div>
+              <span class="text-[11px] font-sans font-semibold text-slate-400 uppercase">RFC</span>
+              <div class="flex gap-0.5">
+                @for (p of res.positions; track $index) {
+                  <span class="char" [class.char-diff]="!p">{{ res.rfc.rfc[$index] }}</span>
+                }
+              </div>
+              <span></span>
+              <div class="flex gap-0.5 text-[10px] font-sans text-slate-400">
+                @for (s of segments; track s.label) {
+                  <span class="text-center border-t border-slate-200 pt-1" [style.width]="'calc(' + (s.to - s.from) + ' * (1.75rem + 0.125rem) - 0.125rem)'">{{ s.label }}</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos de cada documento -->
+          <div class="grid grid-cols-2 gap-3 text-[13px]">
+            <div class="doc-card gap-1">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CURP</span>
+              <span class="text-slate-800">{{ res.curp.birthDate }}</span>
+              <span class="text-slate-500">{{ res.curp.gender }} · {{ res.curp.state }}</span>
+            </div>
+            <div class="doc-card gap-1">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">RFC</span>
+              <span class="text-slate-800">{{ res.rfc.birthOrFoundationDate }}</span>
+              <span class="text-slate-500">Persona {{ res.rfc.type.toLowerCase() }} · {{ res.rfc.homoclave }}</span>
+            </div>
+          </div>
+        }
+
+        <p class="text-[11px] text-slate-400 text-center select-none">
+          <span class="pi pi-shield text-[10px] mr-1 align-middle"></span>
+          La comparación se hace en tu dispositivo.
+        </p>
+      </section>
+    }
+  </main>
+
+  <footer class="flex items-center justify-center gap-2.5 py-6 text-[13px] font-medium text-slate-400">
+    <span>v1.0.0</span>
+    <span class="opacity-50">·</span>
+    <span>© ValidaMX</span>
+  </footer>
+</div>

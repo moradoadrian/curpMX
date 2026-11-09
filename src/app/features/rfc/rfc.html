@@ -1,165 +1,116 @@
-<div class="rfc-wrapper">
-
+<div class="min-h-screen bg-white font-sans flex flex-col max-w-md mx-auto pb-8 relative">
   <!-- ── TOOLBAR ── -->
-  <header class="toolbar">
-    <div class="toolbar__inner">
-      <button
-        class="toolbar__back-btn"
-        (click)="goBack()"
-        aria-label="Regresar al inicio"
-        type="button"
-      >
-        <span class="pi pi-arrow-left"></span>
-      </button>
-      <span class="toolbar__title">Validar RFC</span>
-    </div>
+  <header class="sticky top-0 z-50 bg-primary-800 text-white flex items-center h-14 px-4 select-none">
+    <button (click)="goBack()" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/10 transition-colors text-white mr-2" aria-label="Regresar al inicio" pRipple>
+      <span class="pi pi-arrow-left text-lg"></span>
+    </button>
+    <span class="text-lg font-semibold tracking-tight">Valida RFC</span>
   </header>
 
-  <!-- ── CONTENT ── -->
-  <main class="rfc-content">
-
+  <main class="flex-1 flex flex-col gap-6 p-5">
     <!-- ── INPUT CARD ── -->
-    <div class="card">
-      <div class="card__header">
-        <div class="card__icon-wrap">
-          <span class="pi pi-file card__icon"></span>
-        </div>
-        <div>
-          <h1 class="card__title">Introduce un RFC</h1>
-          <p class="card__desc">
-            La validación se realiza de forma local.<br>
-            No almacenamos tus datos.
-          </p>
+    <div class="bg-white rounded-2xl p-5 border border-slate-100 flex flex-col gap-5">
+      <div class="flex items-start gap-3">
+        <span class="pi pi-file text-2xl text-primary-800 mt-0.5 shrink-0"></span>
+        <div class="flex flex-col gap-0.5">
+          <h2 class="text-[16px] font-semibold text-slate-800">Introduce un RFC</h2>
+          <p class="text-[13px] text-slate-500">La validación se realiza de forma local. No almacenamos tus datos.</p>
         </div>
       </div>
 
-      <div class="form-field">
-        <label for="rfc-input" class="form-label">RFC</label>
-        <input
-          id="rfc-input"
-          pInputText
-          type="text"
-          inputmode="text"
-          autocomplete="off"
-          autofocus
-          spellcheck="false"
-          maxlength="13"
-          placeholder="Ej. VECJ880326XXX o ABC680524YYY"
-          aria-label="Ingresa tu RFC"
-          aria-describedby="rfc-counter rfc-hint"
-          class="rfc-input"
-          [formControl]="rfcControl"
-          (input)="onInput()"
-          (keydown.enter)="validate()"
-        />
-        <div class="form-meta">
-          <span id="rfc-hint" class="form-hint">Persona Física (13 carac.) o Moral (12 carac.).</span>
-          <span id="rfc-counter" class="form-counter" [class.form-counter--full]="isValidLength">
-            {{ charCount }} / 13
-          </span>
-        </div>
-      </div>
+      <input
+        id="rfc-input"
+        pInputText
+        type="text"
+        inputmode="text"
+        autocomplete="off"
+        autofocus
+        spellcheck="false"
+        maxlength="13"
+        placeholder="Ej. VECJ880326XXX o ABC680524YYY"
+        class="w-full px-4 py-3 h-12 text-[15px] font-mono tracking-wider text-slate-900 bg-slate-50 border border-slate-200 rounded-xl uppercase outline-none focus:bg-white focus:border-primary-800 transition-all placeholder:text-slate-400 placeholder:font-sans placeholder:tracking-normal"
+        [formControl]="rfcControl"
+        (input)="onInput()"
+        (keydown.enter)="validate()"
+      />
 
       <button
         pButton
+        pRipple
         type="button"
         label="Validar RFC"
-        icon="pi pi-search"
-        class="validate-btn"
+        class="w-full h-12 flex items-center justify-center bg-primary-800 hover:bg-primary-900 disabled:opacity-40 disabled:hover:bg-primary-800 text-white font-medium text-[15px] rounded-xl transition-all outline-none"
         [disabled]="!isValidLength || isLoading()"
         (click)="validate()"
-        aria-label="Validar RFC ingresado"
       ></button>
     </div>
 
     <!-- ── LOADING SPINNER ── -->
     @if (isLoading()) {
-      <div class="spinner-wrap" role="status" aria-label="Validando RFC">
-        <p-progressSpinner
-          styleClass="rfc-spinner"
-          strokeWidth="4"
-          animationDuration=".8s"
-        />
-        <span class="spinner-label">Validando…</span>
+      <div class="flex flex-col items-center justify-center gap-3 py-8 animate-fade-in">
+        <p-progressSpinner styleClass="w-10 h-10" strokeWidth="3" animationDuration="1s"></p-progressSpinner>
+        <span class="text-[14px] font-medium text-slate-500">Validando documento…</span>
       </div>
     }
 
-    <!-- ── RESULT CARD ── -->
+    <!-- ── RESULT SECTION ── -->
     @if (result(); as res) {
-      <div class="card result-card" [class.result-card--valid]="res.valid" [class.result-card--invalid]="!res.valid">
-
-        <!-- Status tag -->
-        <div class="result-card__status">
-          @if (res.valid) {
-            <p-tag
-              value="RFC VÁLIDO"
-              severity="success"
-              icon="pi pi-check-circle"
-              styleClass="result-tag result-tag--valid"
-            />
-          } @else {
-            <p-tag
-              value="RFC INVÁLIDO"
-              severity="danger"
-              icon="pi pi-times-circle"
-              styleClass="result-tag result-tag--invalid"
-            />
-          }
-        </div>
-
+      <div class="flex flex-col gap-6 mt-2 animate-fade-in">
+        
+        <!-- Status Header -->
         @if (res.valid) {
-          <!-- Valid — data list -->
-          <ul class="result-list" aria-label="Datos del RFC">
-            <li class="result-item">
-              <span class="pi pi-file result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">RFC</span>
-                <span class="result-item__value result-item__value--mono">{{ res.rfc }}</span>
-              </div>
-            </li>
-            <li class="result-item">
-              <span class="pi pi-user result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">Tipo de Persona</span>
-                <span class="result-item__value">Persona {{ res.type }}</span>
-              </div>
-            </li>
-            <li class="result-item">
-              <span class="pi pi-calendar result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">
-                  {{ res.type === 'Física' ? 'Fecha de nacimiento' : 'Fecha de constitución' }}
-                </span>
-                <span class="result-item__value">{{ res.birthOrFoundationDate }}</span>
-              </div>
-            </li>
-            <li class="result-item">
-              <span class="pi pi-key result-item__icon"></span>
-              <div class="result-item__body">
-                <span class="result-item__label">Homoclave</span>
-                <span class="result-item__value">{{ res.homoclave }}</span>
-              </div>
-            </li>
-          </ul>
+          <div class="flex flex-col items-center gap-2 py-4">
+            <span class="pi pi-check-circle text-primary-800 text-5xl"></span>
+            <span class="text-lg font-bold text-slate-800 tracking-tight">RFC válido</span>
+          </div>
+
+          <!-- Data List (Clean Rows) -->
+          <div class="flex flex-col">
+            <div class="flex flex-col gap-1 py-4 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">RFC</span>
+              <span class="text-[16px] font-semibold text-slate-800 font-mono tracking-wider">{{ res.rfc }}</span>
+            </div>
+            
+            <div class="flex flex-col gap-1 py-4 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tipo de Persona</span>
+              <span class="text-[15px] font-medium text-slate-800">Persona {{ res.type }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1 py-4 border-b border-slate-100">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                {{ res.type === 'Física' ? 'Fecha de nacimiento' : 'Fecha de constitución' }}
+              </span>
+              <span class="text-[15px] font-medium text-slate-800">{{ res.birthOrFoundationDate }}</span>
+            </div>
+
+            <div class="flex flex-col gap-1 py-4">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Homoclave</span>
+              <span class="text-[15px] font-medium text-slate-800">{{ res.homoclave }}</span>
+            </div>
+          </div>
         } @else {
-          <!-- Invalid — error message -->
-          <p-message
-            severity="error"
-            [text]="res.message"
-            styleClass="result-message"
-          />
+          <!-- Invalid Status -->
+          <div class="flex flex-col items-center justify-center gap-3 py-8 text-center">
+            <span class="pi pi-times-circle text-red-500 text-5xl"></span>
+            <span class="text-lg font-bold text-slate-800 tracking-tight">RFC inválido</span>
+            <p class="text-[14px] text-slate-500 max-w-xs leading-relaxed mt-1">{{ res.message }}</p>
+          </div>
         }
 
+        <!-- Privacy Line -->
+        <p class="text-[11px] text-slate-400 text-center mt-3 select-none">
+          <span class="pi pi-shield text-[10px] mr-1 align-middle"></span>
+          Tus datos nunca salen de tu dispositivo.
+        </p>
+
       </div>
     }
-
   </main>
 
-  <!-- ── FOOTER ── -->
-  <footer class="rfc-footer">
+  <footer class="flex items-center justify-center gap-2.5 py-6 text-[13px] font-medium text-slate-400">
     <span>v1.0.0</span>
-    <span class="rfc-footer__separator">·</span>
+    <span class="opacity-50">·</span>
     <span>© ValidaMX</span>
   </footer>
-
 </div>
+
